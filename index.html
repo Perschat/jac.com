@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="jac.ai - چت‌بات هوشمند با رابط کاربری مدرن و قابلیت‌های پیشرفته، ساخته‌شده توسط امیرحسین">
+    <meta name="keywords" content="چت‌بات, هوش مصنوعی, وب, جاوااسکریپت, Gemini">
+    <meta name="author" content="Amirhossein">
+    <title>jac.ai v1.6.4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600&family=Roboto:wght@400;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-light: #f0f6fc;
+            --text-dark: #e6edf3;
+            --text-light: #0d1a26;
+            --container-dark: #161b22;
+            --container-light: #ffffff;
+            --border-light: #d0d7de;
+            --accent: #58a6ff;
+            --user-bg-dark: #238636;
+            --user-bg-light: #2ea043;
+            --gpt-bg-dark: #1f6feb;
+            --gpt-bg-light: #388bfd;
+            --error-bg: #d73a49;
+            --success-bg: #28a745;
+            --image-btn: #f9826c;
+            --voice-btn: #8957e5;
+            --shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+            --shadow-light: 0 1px 6px rgba(0, 0, 0, 0.1);
+            --transition: 0.3s ease-in-out;
+            --radius: 6px;
+            --btn-radius: 20px;
+            --font-size: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            overflow-x: hidden;
+            transition: var(--transition);
+            font-family: 'Vazirmatn', 'Roboto', 'Amiri', sans-serif;
+            font-size: var(--font-size);
+        }
+        body[lang="fa"], body[lang="ar"] { direction: rtl; }
+        body[lang="en"] { font-family: 'Roboto', sans-serif; direction: ltr; }
+        body.light { background: var(--bg-light); color: var(--text-light); }
+        body.fullscreen .chat-container { max-width: 100%; height: 100vh; padding: 0; border-radius: 0; }
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        body.light #loading-screen { background: var(--bg-light); }
+        #loading-logo {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--accent);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: var(--bg-dark);
+        }
+        body.light #header { background: var(--bg-light); }
+        #username-display { font-size: 16px; color: var(--text-dark); }
+        body.light #username-display { color: var(--text-light); }
+        #menu-btn {
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 101;
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+        #menu-btn:hover { transform: rotate(90deg); }
+        body.light #menu-btn { color: var(--text-light); }
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 99;
+        }
+        #menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background: var(--container-dark);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease-in-out;
+            z-index: 100;
+        }
+        #menu.show { right: 0; }
+        body.light #menu { background: var(--container-light); border-left: 1px solid var(--border-light); }
+        #menu button, #menu a {
+            background: transparent;
+            color: var(--text-dark);
+            border: none;
+            padding: 12px 16px;
+            text-align: right;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border-radius: 8px;
+            margin: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.light #menu button, body.light #menu a { color: var(--text-light); }
+        #menu button:hover, #menu a:hover { background: rgba(88, 166, 255, 0.2); transform: scale(1.02); }
+        body.light #menu button:hover, body.light #menu a:hover { background: rgba(13, 26, 38, 0.15); }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--container-dark);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            box-shadow: var(--shadow);
+            position: relative;
+            margin-top: 60px;
+            z-index: 1;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        body.light .chat-container { background: var(--container-light); border: 1px solid var(--border-light); box-shadow: var(--shadow-light); }
+        #chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: var(--radius);
+            background: var(--container-dark);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            scroll-behavior: smooth;
+            z-index: 2;
+        }
+        body.light #chat-box { background: var(--container-light); }
+        .message {
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            max-width: 80%;
+            line-height: 1.5;
+            font-size: var(--font-size);
+            position: relative;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all var(--transition);
+            display: flex;
+            flex-direction: column;
+            white-space: pre-wrap;
+            animation: wave 0.6s ease-in-out;
+            z-index: 2;
+        }
+        .message-preview {
+            opacity: 0.3;
+            background: #21262d;
+            padding: 8px;
+            border-radius: var(--radius);
+            z-index: 2;
+        }
+        body.light .message-preview { background: #e6edf3; }
+        .shoma {
+            align-self: flex-end;
+            background: var(--user-bg-dark);
+            color: var(--text-dark);
+            box-shadow: var(--shadow);
+        }
+        body.light .shoma { background: var(--user-bg-light); color: var(--text-light); }
+        .gpt {
+            align-self: flex-start;
+            background: var(--gpt-bg-dark);
+            color: var(--text-dark);
+            box-shadow: var(--shadow);
+        }
+        body.light .gpt { background: var(--gpt-bg-light); color: var(--text-light); }
+        .copy-btn {
+            font-size: calc(var(--font-size) - 4px);
+            color: var(--text-dark);
+            opacity: 0.7;
+            cursor: pointer;
+            margin-top: 4px;
+            text-align: right;
+            padding: 2px 6px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            align-self: flex-end;
+        }
+        body.light .copy-btn { color: var(--text-light); background: rgba(0, 0, 0, 0.1); }
+        .copy-btn:hover { opacity: 1; background: var(--accent); color: var(--text-dark); }
+        .timestamp {
+            font-size: calc(var(--font-size) - 5px);
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
+        }
+        #controls {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 8px;
+            background: var(--container-dark);
+            border-radius: 0 0 var(--radius) var(--radius);
+            z-index: 2;
+        }
+        body.light #controls { background: var(--container-light); border-top: 1px solid var(--border-light); }
+        #input-container { display: flex; gap: 6px; }
+        #input-container.hidden { display: none; }
+        #user-input {
+            width: 100%;
+            min-height: 44px;
+            max-height: 100px;
+            padding: 10px 12px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            outline: none;
+            font-size: var(--font-size);
+            background: #21262d;
+            color: var(--text-dark);
+            transition: var(--transition);
+            resize: none;
+            overflow-y: auto;
+        }
+        #user-input:focus { border-color: var(--accent); box-shadow: 0 0 5px rgba(88, 166, 255, 0.3); }
+        body.light #user-input { background: var(--container-light); color: var(--text-light); border: 1px solid var(--border-light); }
+        body.light #user-input:focus { box-shadow: 0 0 5px rgba(13, 26, 38, 0.2); }
+        #user-input:disabled { background: #2f363d; border-color: #5e6d7a; color: #5e6d7a; cursor: not-allowed; }
+        #image-input-container { display: none; flex-direction: column; gap: 6px; z-index: 2; }
+        #image-input-container.visible { display: flex; }
+        #image-preview { max-width: 100px; max-height: 100px; object-fit: contain; border-radius: var(--radius); margin-bottom: 8px; }
+        #image-description {
+            width: 100%;
+            min-height: 44px;
+            max-height: 100px;
+            padding: 10px 12px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            outline: none;
+            font-size: var(--font-size);
+            background: #21262d;
+            color: var(--text-dark);
+            resize: none;
+            overflow-y: auto;
+        }
+        #image-description:focus { border-color: var(--accent); box-shadow: 0 0 5px rgba(88, 166, 255, 0.3); }
+        body.light #image-description { background: var(--container-light); color: var(--text-light); border: 1px solid var(--border-light); }
+        body.light #image-description:focus { box-shadow: 0 0 5px rgba(13, 26, 38, 0.2); }
+        #send-btn, #send-image-btn, #cancel-image-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--btn-radius);
+            background: var(--gpt-bg-dark);
+            color: var(--text-dark);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            opacity: 1;
+        }
+        #send-btn:hover, #send-image-btn:hover, #cancel-image-btn:hover { background: var(--gpt-bg-light); transform: scale(1.05); }
+        #send-btn:disabled, #send-image-btn:disabled, #cancel-image-btn:disabled { opacity: 0; pointer-events: none; }
+        #send-btn.waiting { display: none; }
+        #stop-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--btn-radius);
+            background: var(--error-bg);
+            color: var(--text-dark);
+            border: none;
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+        #stop-btn:hover { background: #f85149; transform: scale(1.05); }
+        #voice-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--btn-radius);
+            background: var(--voice-btn);
+            color: var(--text-dark);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+        #voice-btn:hover { background: #9f6aea; transform: scale(1.05); }
+        #voice-btn.recording { background: var(--error-bg); }
+        #voice-btn.hidden { display: none; }
+        #image-upload-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--btn-radius);
+            background: var(--image-btn);
+            color: var(--text-dark);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+        #image-upload-btn:hover { background: #ff9b85; transform: scale(1.05); }
+        #image-upload-btn.hidden { display: none; }
+        #progress-timer {
+            width: 80px;
+            height: 4px;
+            background: #21262d;
+            border-radius: 4px;
+            margin-left: 8px;
+            overflow: hidden;
+        }
+        body.light #progress-timer { background: #e6edf3; }
+        #progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width linear;
+        }
+        .loader {
+            width: 18px;
+            height: 18px;
+            border: 3px solid var(--text-dark);
+            border-top: 3px solid var(--gpt-bg-dark);
+            border-radius: var(--btn-radius);
+            animation: spin 0.8s linear infinite;
+            margin-left: 8px;
+        }
+        body.light .loader { border: 3px solid var(--text-light); border-top: 3px solid var(--gpt-bg-light); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes wave {
+            0% { transform: translateY(10px) scale(0.98); }
+            40% { transform: translateY(-8px) scale(1.02); }
+            70% { transform: translateY(4px) scale(1.01); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .message, .message-preview { transition: none; transform: none; opacity: 1; }
+            .message { animation: none; }
+            #send-btn, #stop-btn, #voice-btn, #image-upload-btn, #send-image-btn, #cancel-image-btn, #menu button, #menu a { transition: none; }
+            #menu, #loading-screen { transition: none; }
+        }
+        #toast {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--user-bg-dark);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 3;
+        }
+        body.light #toast { background: var(--user-bg-light); color: var(--text-light); }
+        #toast::before { content: "ℹ️"; font-size: 12px; }
+        #voice-recording-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--container-dark);
+            padding: 15px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 1000;
+            text-align: center;
+        }
+        body.light #voice-recording-modal { background: var(--container-light); border: 1px solid var(--border-light); }
+        #voice-recording-modal.recording { display: block; }
+        #voice-recording-modal p { font-size: var(--font-size); color: var(--text-dark); margin-bottom: 8px; }
+        body.light #voice-recording-modal p { color: var(--text-light); }
+        #voice-recording-modal button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--error-bg);
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        #voice-recording-modal button:hover { background: #f85149; }
+        #ai-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--error-bg);
+            display: inline-block;
+            margin-left: 8px;
+        }
+        #ai-status.active { background: var(--success-bg); }
+        @media (max-width: 600px) {
+            body { padding: 8px 0; }
+            .chat-container { max-width: 100%; height: 92vh; margin-top: 50px; padding: 0 6px; }
+            #header { padding: 8px 10px; font-size: 18px; }
+            #username-display { font-size: 14px; }
+            #menu-btn { font-size: 20px; }
+            #menu { width: 80%; max-width: none; }
+            #menu button, #menu a { font-size: 13px; padding: 10px 12px; }
+            #chat-box { padding: 8px; gap: 6px; }
+            .message { font-size: var(--font-size); padding: 6px 10px; }
+            #user-input, #image-description { font-size: var(--font-size); padding: 8px 10px; min-height: 40px; }
+            #image-preview { max-width: 80px; max-height: 80px; }
+            #send-btn, #stop-btn, #voice-btn, #image-upload-btn, #send-image-btn, #cancel-image-btn { width: 40px; height: 40px; font-size: 15px; }
+            #progress-timer { width: 60px; }
+            .loader { width: 16px; height: 16px; }
+            #toast { top: 8px; right: 8px; padding: 6px 10px; font-size: 13px; }
+            #voice-recording-modal { padding: 12px; }
+            #voice-recording-modal p { font-size: var(--font-size); }
+            #voice-recording-modal button { padding: 5px 10px; font-size: 13px; }
+        }
+        @media (min-width: 601px) {
+            .chat-container { max-width: 600px; height: 90vh; margin-top: 60px; }
+        }
+    </style>
+</head>
+<body lang="fa">
+    <div id="loading-screen">
+        <div id="loading-logo">jac.ai</div>
+    </div>
+    <div id="toast"></div>
+    <div id="voice-recording-modal">
+        <p>در حال ضبط صدا...</p>
+        <button id="stop-recording"><i class="fa fa-stop"></i> توقف</button>
+    </div>
+    <div id="header">
+        <span id="username-display"></span>
+        jac <span id="ai-status"></span>
+        <span id="menu-btn"><i class="fa fa-bars"></i></span>
+    </div>
+    <div id="overlay"></div>
+    <div id="menu">
+        <a href="signup.html" id="signup"><i class="fa fa-user-plus"></i> ثبت‌نام</a>
+        <a href="login.html" id="login"><i class="fa fa-sign-in-alt"></i> ورود</a>
+        <a href="dashboard.html" id="dashboard" style="display: none;"><i class="fa fa-tachometer-alt"></i> داشبورد</a>
+        <a href="settings.html" id="settings" style="display: none;"><i class="fa fa-cog"></i> تنظیمات</a>
+        <button id="new-project"><i class="fa fa-folder-plus"></i> پروژه جدید</button>
+        <button id="clear-chat"><i class="fa fa-trash"></i> پاک کردن چت</button>
+        <button id="mode-toggle"><i class="fa fa-exchange-alt"></i> حالت کوتاه/بلند</button>
+        <button id="theme-toggle"><i class="fa fa-moon"></i> Dark/Light Mode</button>
+        <button id="fullscreen-toggle"><i class="fa fa-expand"></i> حالت تمام‌صفحه</button>
+    </div>
+    <main class="chat-container">
+        <div id="chat-box"></div>
+        <div id="controls">
+            <div id="input-container">
+                <textarea id="user-input" aria-label="پیام خود را وارد کنید" placeholder="پیام خود را وارد کنید" wrap="soft"></textarea>
+                <button id="send-btn" aria-label="ارسال پیام"><i class="fa fa-paper-plane"></i></button>
+                <button id="stop-btn" aria-label="توقف"><i class="fa fa-stop"></i></button>
+                <button id="voice-btn" aria-label="ضبط صدا"><i class="fa fa-microphone"></i></button>
+                <button id="image-upload-btn" aria-label="آپلود تصویر"><i class="fa fa-image"></i></button>
+                <input type="file" id="image-upload" accept="image/png,image/jpeg,image/jpg" style="display:none;">
+            </div>
+            <div id="image-input-container">
+                <img id="image-preview" alt="تصویر آپلود شده">
+                <textarea id="image-description" placeholder="توضیحی برای تصویر وارد کنید" wrap="soft"></textarea>
+                <button id="send-image-btn" aria-label="ارسال تصویر"><i class="fa fa-paper-plane"></i> ارسال</button>
+                <button id="cancel-image-btn" aria-label="لغو"><i class="fa fa-times"></i> لغو</button>
+            </div>
+            <audio id="click-sound" src="https://freesound.org/data/previews/171/171671_2436018-lq.mp3"></audio>
+            <audio id="menu-sound" src="https://freesound.org/data/previews/256/256113_3263906-lq.mp3"></audio>
+            <audio id="send-sound" src="https://freesound.org/data/previews/256/256114_3263906-lq.mp3"></audio>
+            <audio id="fullscreen-sound" src="https://freesound.org/data/previews/245/245347_3263906-lq.mp3"></audio>
+        </div>
+    </main>
+    <script defer>
+        const GEMINI_API_KEY = "AIzaSyCcKlYgqdjiHJbLOHhBa7m_Duu8nFdfKHg"; // هشدار: کلید API نباید مستقیم در کد باشد
+        const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + GEMINI_API_KEY;
+        let shortMode = localStorage.getItem("default-mode") === "short";
+        let isGPTTyping = false;
+        let isReconnecting = false;
+        let aiOnline = false;
+
+        const translations = {
+            fa: {
+                placeholder: "پیام خود را وارد کنید",
+                imageDescription: "توضیحی برای تصویر وارد کنید",
+                send: "ارسال",
+                cancel: "لغو",
+                signup: "ثبت‌نام",
+                login: "ورود",
+                dashboard: "داشبورد",
+                settings: "تنظیمات",
+                newProject: "پروژه جدید",
+                clearChat: "پاک کردن چت",
+                modeToggle: "حالت کوتاه/بلند",
+                themeToggle: "Dark/Light Mode",
+                fullscreenToggle: "حالت تمام‌صفحه",
+                copySuccess: "پیام کپی شد!",
+                newProjectToast: "پروژه جدید آماده است!",
+                modeToast: (mode) => `حالت پاسخ ${mode ? "کوتاه" : "بلند"} شد`,
+                voiceError: "خطا در ضبط صدا. لطفاً دوباره امتحان کنید.",
+                voiceNotSupported: "مرورگر شما از تایپ صوتی پشتیبانی نمی‌کند.",
+                imageError: "لطفاً یک فایل تصویری معتبر انتخاب کنید.",
+                imageSizeError: "اندازه تصویر نباید بیشتر از ۵ مگابایت باشد.",
+                imageUploadSuccess: "تصویر با موفقیت آپلود شد!",
+                recording: "در حال ضبط صدا...",
+                stopRecording: "توقف",
+                aiOn: "هوش مصنوعی روشن است.",
+                aiOff: "هوش مصنوعی خاموش است.",
+                apiError: "خطا در ارتباط با سرور API.",
+                rateLimitError: "تعداد درخواست‌ها بیش از حد مجاز است. لطفاً چند لحظه صبر کنید.",
+                authError: "مشکل در اعتبارسنجی API. لطفاً کلید API را بررسی کنید.",
+                systemPrompt: "جواب به فارسی بده، دوستانه و مفید باشد."
+            },
+            en: {
+                placeholder: "Enter your message",
+                imageDescription: "Enter a description for the image",
+                send: "Send",
+                cancel: "Cancel",
+                signup: "Sign Up",
+                login: "Login",
+                dashboard: "Dashboard",
+                settings: "Settings",
+                newProject: "New Project",
+                clearChat: "Clear Chat",
+                modeToggle: "Short/Long Mode",
+                themeToggle: "Dark/Light Mode",
+                fullscreenToggle: "Fullscreen Mode",
+                copySuccess: "Message copied!",
+                newProjectToast: "New project ready!",
+                modeToast: (mode) => `Response mode set to ${mode ? "short" : "long"}`,
+                voiceError: "Error in voice recording. Please try again.",
+                voiceNotSupported: "Your browser does not support voice typing.",
+                imageError: "Please select a valid image file.",
+                imageSizeError: "Image size must not exceed 5MB.",
+                imageUploadSuccess: "Image uploaded successfully!",
+                recording: "Recording voice...",
+                stopRecording: "Stop",
+                aiOn: "AI is online.",
+                aiOff: "AI is offline.",
+                apiError: "Error connecting to API server.",
+                rateLimitError: "Too many requests. Please wait a moment.",
+                authError: "API authentication error. Please check the API key.",
+                systemPrompt: "Respond in English, be friendly and helpful."
+            },
+            ar: {
+                placeholder: "أدخل رسالتك",
+                imageDescription: "أدخل وصفًا للصورة",
+                send: "إرسال",
+                cancel: "إلغاء",
+                signup: "التسجيل",
+                login: "تسجيل الدخول",
+                dashboard: "لوحة التحكم",
+                settings: "الإعدادات",
+                newProject: "مشروع جديد",
+                clearChat: "مسح الدردشة",
+                modeToggle: "وضع قصير/طويل",
+                themeToggle: "الوضع الداكن/الفاتح",
+                fullscreenToggle: "وضع ملء الشاشة",
+                copySuccess: "تم نسخ الرسالة!",
+                newProjectToast: "المشروع الجديد جاهز!",
+                modeToast: (mode) => `تم ضبط وضع الرد على ${mode ? "قصير" : "طويل"}`,
+                voiceError: "خطأ في تسجيل الصوت. حاول مرة أخرى.",
+                voiceNotSupported: "متصفحك لا يدعم الكتابة الصوتية.",
+                imageError: "يرجى اختيار ملف صورة صالح.",
+                imageSizeError: "يجب ألا يتجاوز حجم الصورة ٥ ميغابايت.",
+                imageUploadSuccess: "تم رفع الصورة بنجاح!",
+                recording: "جارٍ تسجيل الصوت...",
+                stopRecording: "إيقاف",
+                aiOn: "الذكاء الاصطناعي متصل.",
+                aiOff: "الذكاء الاصطناعي غير متصل.",
+                apiError: "خطأ في الاتصال بخادم API.",
+                rateLimitError: "طلبات كثيرة جدًا. يرجى الانتظار لحظة.",
+                authError: "خطأ في مصادقة API. يرجى التحقق من مفتاح API.",
+                systemPrompt: "أجب بالعربية، كن ودودًا ومفيدًا."
+            }
+        };
+        let currentLang = localStorage.getItem("language") || "fa";
+        const toast = document.getElementById("toast");
+        const clickSound = document.getElementById("click-sound");
+        const menuSound = document.getElementById("menu-sound");
+        const sendSound = document.getElementById("send-sound");
+        const fullscreenSound = document.getElementById("fullscreen-sound");
+
+        function showToast(message) {
+            if (localStorage.getItem("notifications") === "false") return;
+            toast.innerHTML = message;
+            toast.style.opacity = 1;
+            setTimeout(() => { toast.style.opacity = 0; }, 4000);
+        }
+
+        function playSound(audio) {
+            if (localStorage.getItem("sound-effects") === "false") return;
+            audio.play().catch(e => console.warn("Sound play failed:", e));
+        }
+
+        async function checkOnlineStatus() {
+            const statusIndicator = document.getElementById("ai-status");
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "Ping" }] }] })
+                });
+                aiOnline = res.ok;
+                statusIndicator.classList.toggle("active", aiOnline);
+                if (isReconnecting && aiOnline) {
+                    isReconnecting = false;
+                    showToast(translations[currentLang].aiOn);
+                }
+            } catch {
+                aiOnline = false;
+                statusIndicator.classList.remove("active");
+                if (!isReconnecting) {
+                    isReconnecting = true;
+                    showToast(translations[currentLang].aiOff);
+                    setTimeout(checkOnlineStatus, 5000);
+                }
+            }
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLang];
+            document.getElementById("user-input").placeholder = t.placeholder;
+            document.getElementById("image-description").placeholder = t.imageDescription;
+            document.getElementById("send-image-btn").innerHTML = `<i class="fa fa-paper-plane"></i> ${t.send}`;
+            document.getElementById("cancel-image-btn").innerHTML = `<i class="fa fa-times"></i> ${t.cancel}`;
+            document.getElementById("signup").innerText = t.signup;
+            document.getElementById("login").innerText = t.login;
+            document.getElementById("dashboard").innerText = t.dashboard;
+            document.getElementById("settings").innerText = t.settings;
+            document.getElementById("new-project").innerText = t.newProject;
+            document.getElementById("clear-chat").innerText = t.clearChat;
+            document.getElementById("mode-toggle").innerText = t.modeToggle;
+            document.getElementById("theme-toggle").innerText = t.themeToggle;
+            document.getElementById("fullscreen-toggle").innerText = t.fullscreenToggle;
+            document.getElementById("voice-recording-modal").querySelector("p").innerText = t.recording;
+            document.getElementById("stop-recording").innerHTML = `<i class="fa fa-stop"></i> ${t.stopRecording}`;
+        }
+
+        function updateMenu() {
+            const isLoggedIn = localStorage.getItem("username");
+            document.getElementById("signup").style.display = isLoggedIn ? "none" : "block";
+            document.getElementById("login").style.display = isLoggedIn ? "none" : "block";
+            document.getElementById("dashboard").style.display = isLoggedIn ? "block" : "none";
+            document.getElementById("settings").style.display = isLoggedIn ? "block" : "none";
+            document.getElementById("username-display").innerText = isLoggedIn ? `خوش آمدی، ${isLoggedIn}` : "";
+        }
+
+        const menuBtn = document.getElementById("menu-btn");
+        const menu = document.getElementById("menu");
+        const overlay = document.getElementById("overlay");
+
+        function toggleMenu() {
+            menu.classList.toggle("show");
+            overlay.style.display = menu.classList.contains("show") ? "block" : "none";
+            playSound(menuSound);
+        }
+
+        menuBtn.onclick = toggleMenu;
+        overlay.onclick = toggleMenu;
+
+        function getTimestamp() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        }
+
+        function addMessage(role, text, image = null) {
+            const chatBox = document.getElementById("chat-box");
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "message " + role.toLowerCase();
+            chatBox.appendChild(msgDiv);
+            if (image) {
+                const img = document.createElement("img");
+                img.src = image;
+                img.id = "image-preview";
+                img.alt = translations[currentLang].imageDescription;
+                msgDiv.appendChild(img);
+            }
+            const contentDiv = document.createElement("div");
+            contentDiv.innerHTML = role === "GPT" ? marked.parse(text) : text;
+            msgDiv.appendChild(contentDiv);
+            const ts = document.createElement("div");
+            ts.className = "timestamp";
+            ts.innerText = getTimestamp();
+            const copyBtn = document.createElement("span");
+            copyBtn.className = "copy-btn";
+            copyBtn.innerHTML = `<i class="fa fa-copy"></i> ${translations[currentLang].copySuccess.split(" ")[0]}`;
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(text).then(() => showToast(translations[currentLang].copySuccess));
+                playSound(clickSound);
+            };
+            msgDiv.appendChild(copyBtn);
+            msgDiv.appendChild(ts);
+            msgDiv.style.opacity = 1;
+            msgDiv.style.transform = "translateY(0)";
+            chatBox.scrollTop = chatBox.scrollHeight;
+            if (role === "GPT") {
+                isGPTTyping = false;
+                userInput.disabled = false;
+                sendBtn.style.display = "flex";
+                stopBtn.style.display = "none";
+                imageUpload.disabled = false;
+                voiceBtn.disabled = false;
+                inputContainer.classList.remove("hidden");
+                imageInputContainer.classList.remove("visible");
+            }
+        }
+
+        function addLoader() {
+            const chatBox = document.getElementById("chat-box");
+            const loader = document.createElement("div");
+            loader.className = "loader";
+            loader.id = "loader";
+            const progress = document.createElement("div");
+            progress.id = "progress-timer";
+            const bar = document.createElement("div");
+            bar.id = "progress-bar";
+            progress.appendChild(bar);
+            chatBox.appendChild(loader);
+            chatBox.appendChild(progress);
+            let width = 0;
+            const duration = 1000;
+            const interval = setInterval(() => {
+                width += 100 / (duration / 50);
+                bar.style.width = `${width}%`;
+                if (width >= 100 || !isGPTTyping) clearInterval(interval);
+            }, 50);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeLoader() {
+            const loader = document.getElementById("loader");
+            const progress = document.getElementById("progress-timer");
+            if (loader) loader.remove();
+            if (progress) progress.remove();
+        }
+
+        async function sendMessage(text, image = null) {
+            if (isGPTTyping || !aiOnline) {
+                if (!aiOnline) showToast(translations[currentLang].aiOff);
+                return;
+            }
+            isGPTTyping = true;
+            userInput.disabled = true;
+            sendBtn.style.display = "none";
+            stopBtn.style.display = "flex";
+            imageUpload.disabled = true;
+            voiceBtn.disabled = true;
+            addMessage("Shoma", text, image);
+            playSound(sendSound);
+            addLoader();
+
+            try {
+                const responseSpeed = parseInt(localStorage.getItem("response-speed") || "500");
+                await new Promise(resolve => setTimeout(resolve, responseSpeed));
+                const body = {
+                    contents: [{
+                        parts: [
+                            { text: shortMode ? `${text} (پاسخ کوتاه)` : text }
+                        ]
+                    }],
+                    generationConfig: {
+                        maxOutputTokens: parseInt(localStorage.getItem("max-tokens") || "1000"),
+                        temperature: 0.7
+                    }
+                };
+                if (image) {
+                    const base64Image = image.split(",")[1];
+                    const mimeType = image.match(/data:(image\/[a-z]+)/i)[1];
+                    body.contents[0].parts.push({ inlineData: { mimeType, data: base64Image } });
+                }
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) {
+                    if (res.status === 429) {
+                        showToast(translations[currentLang].rateLimitError);
+                        throw new Error("rate_limit");
+                    }
+                    if (res.status === 401) {
+                        showToast(translations[currentLang].authError);
+                        throw new Error("auth");
+                    }
+                    throw new Error("server_error");
+                }
+                const data = await res.json();
+                removeLoader();
+                if (data.error) throw new Error(data.error.message);
+                const answer = data.candidates[0].content.parts[0].text;
+                addMessage("GPT", answer);
+                if (localStorage.getItem("auto-save-history") !== "false") saveHistory();
+            } catch (e) {
+                removeLoader();
+                let errorMessage = translations[currentLang].apiError;
+                if (e.message.includes("rate_limit")) errorMessage = translations[currentLang].rateLimitError;
+                else if (e.message.includes("auth")) errorMessage = translations[currentLang].authError;
+                addMessage("GPT", errorMessage);
+                if (e.message.includes("rate_limit") || e.message.includes("auth")) {
+                    if (!isReconnecting) {
+                        isReconnecting = true;
+                        showToast(translations[currentLang].aiOff);
+                        setTimeout(checkOnlineStatus, 5000);
+                    }
+                }
+            }
+        }
+
+        function saveHistory() {
+            if (localStorage.getItem("auto-save-history") === "false") return;
+            const chatBox = document.getElementById("chat-box");
+            const messages = Array.from(chatBox.children).filter(child => child.classList.contains("message")).map(child => ({
+                role: child.classList.contains("shoma") ? "Shoma" : "GPT",
+                text: child.querySelector("div:not(.timestamp):not(.copy-btn)")?.innerText || "",
+                image: child.querySelector("img")?.src || null,
+                timestamp: child.querySelector(".timestamp")?.innerText || ""
+            }));
+            localStorage.setItem("chat-history", JSON.stringify(messages));
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem("chat-history") || "[]");
+            history.forEach(msg => addMessage(msg.role, msg.text, msg.image));
+        }
+
+        const userInput = document.getElementById("user-input");
+        const sendBtn = document.getElementById("send-btn");
+        const stopBtn = document.getElementById("stop-btn");
+        const voiceBtn = document.getElementById("voice-btn");
+        const imageUploadBtn = document.getElementById("image-upload-btn");
+        const imageUpload = document.getElementById("image-upload");
+        const inputContainer = document.getElementById("input-container");
+        const imageInputContainer = document.getElementById("image-input-container");
+        const imagePreview = document.getElementById("image-preview");
+        const imageDescription = document.getElementById("image-description");
+        const sendImageBtn = document.getElementById("send-image-btn");
+        const cancelImageBtn = document.getElementById("cancel-image-btn");
+        const voiceRecordingModal = document.getElementById("voice-recording-modal");
+        const stopRecordingBtn = document.getElementById("stop-recording");
+
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = "44px";
+            textarea.style.height = `${Math.min(textarea.scrollHeight, 100)}px`;
+        }
+
+        userInput.addEventListener("input", () => adjustTextareaHeight(userInput));
+        imageDescription.addEventListener("input", () => adjustTextareaHeight(imageDescription));
+
+        sendBtn.onclick = () => {
+            const text = userInput.value.trim();
+            if (!text || isGPTTyping) return;
+            userInput.value = "";
+            adjustTextareaHeight(userInput);
+            sendMessage(text);
+        };
+
+        userInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && !e.shiftKey && !isGPTTyping) {
+                e.preventDefault();
+                sendBtn.click();
+            }
+        });
+
+        imageUploadBtn.onclick = () => {
+            imageUpload.click();
+            playSound(clickSound);
+        };
+
+        imageUpload.onchange = () => {
+            const file = imageUpload.files[0];
+            if (!file || !file.type.match(/image\/(png|jpeg|jpg)/)) {
+                showToast(translations[currentLang].imageError);
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                showToast(translations[currentLang].imageSizeError);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                imagePreview.src = reader.result;
+                imageInputContainer.classList.add("visible");
+                inputContainer.classList.add("hidden");
+                adjustTextareaHeight(imageDescription);
+            };
+            reader.readAsDataURL(file);
+        };
+
+        sendImageBtn.onclick = () => {
+            const description = imageDescription.value.trim();
+            if (!description) {
+                showToast(translations[currentLang].imageDescriptionError);
+                return;
+            }
+            sendMessage(description, imagePreview.src);
+            imageInputContainer.classList.remove("visible");
+            inputContainer.classList.remove("hidden");
+            imageDescription.value = "";
+            imageUpload.value = "";
+            adjustTextareaHeight(imageDescription);
+            showToast(translations[currentLang].imageUploadSuccess);
+        };
+
+        cancelImageBtn.onclick = () => {
+            imageInputContainer.classList.remove("visible");
+            inputContainer.classList.remove("hidden");
+            imageDescription.value = "";
+            imageUpload.value = "";
+            adjustTextareaHeight(imageDescription);
+            playSound(clickSound);
+        };
+
+        const recognition = window.SpeechRecognition || window.webkitSpeechRecognition ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
+        if (recognition) {
+            recognition.lang = "fa-IR";
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                userInput.value = text;
+                adjustTextareaHeight(userInput);
+                voiceRecordingModal.classList.remove("recording");
+                voiceBtn.classList.remove("recording");
+            };
+            recognition.onerror = () => {
+                showToast(translations[currentLang].voiceError);
+                voiceRecordingModal.classList.remove("recording");
+                voiceBtn.classList.remove("recording");
+            };
+            recognition.onend = () => {
+                voiceRecordingModal.classList.remove("recording");
+                voiceBtn.classList.remove("recording");
+            };
+        }
+
+        voiceBtn.onclick = () => {
+            if (!recognition) {
+                showToast(translations[currentLang].voiceNotSupported);
+                return;
+            }
+            if (voiceBtn.classList.contains("recording")) {
+                recognition.stop();
+            } else {
+                recognition.lang = currentLang === "en" ? "en-US" : currentLang === "ar" ? "ar-SA" : "fa-IR";
+                recognition.start();
+                voiceBtn.classList.add("recording");
+                voiceRecordingModal.classList.add("recording");
+                playSound(clickSound);
+            }
+        };
+
+        stopRecordingBtn.onclick = () => {
+            recognition.stop();
+            playSound(clickSound);
+        };
+
+        document.getElementById("clear-chat").onclick = () => {
+            document.getElementById("chat-box").innerHTML = "";
+            localStorage.removeItem("chat-history");
+            toggleMenu();
+            playSound(clickSound);
+        };
+
+        document.getElementById("new-project").onclick = () => {
+            document.getElementById("chat-box").innerHTML = "";
+            localStorage.removeItem("chat-history");
+            showToast(translations[currentLang].newProjectToast);
+            toggleMenu();
+            playSound(clickSound);
+        };
+
+        document.getElementById("mode-toggle").onclick = () => {
+            shortMode = !shortMode;
+            localStorage.setItem("default-mode", shortMode ? "short" : "long");
+            showToast(translations[currentLang].modeToast(shortMode));
+            toggleMenu();
+            playSound(clickSound);
+        };
+
+        document.getElementById("theme-toggle").onclick = () => {
+            const newTheme = document.body.classList.contains("light") ? "dark" : "light";
+            document.body.classList.toggle("light");
+            localStorage.setItem("theme", newTheme);
+            toggleMenu();
+            playSound(clickSound);
+        };
+
+        document.getElementById("fullscreen-toggle").onclick = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => showToast(translations[currentLang].error));
+                document.body.classList.add("fullscreen");
+            } else {
+                document.exitFullscreen();
+                document.body.classList.remove("fullscreen");
+            }
+            toggleMenu();
+            playSound(fullscreenSound);
+        };
+
+        function loadSettings() {
+            const theme = localStorage.getItem("theme") || "dark";
+            const fontSize = localStorage.getItem("font-size") || "14";
+            const accentColor = localStorage.getItem("accent-color") || "#58a6ff";
+            document.documentElement.style.setProperty('--accent', accentColor);
+            document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
+            document.body.classList.toggle("light", theme === "light");
+        }
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById("loading-screen").style.opacity = 0;
+                setTimeout(() => document.getElementById("loading-screen").remove(), 500);
+            }, 1500);
+            loadHistory();
+            checkOnlineStatus();
+            setInterval(checkOnlineStatus, 30000);
+            updateLanguage();
+            updateMenu();
+            adjustTextareaHeight(userInput);
+            loadSettings();
+        };
+    </script>
+</body>
+</html>

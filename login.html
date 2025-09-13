@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ورود به jac.ai - چت‌بات هوشمند با رابط کاربری مدرن">
+    <meta name="keywords" content="ورود, چت‌بات, هوش مصنوعی, jac.ai">
+    <meta name="author" content="Amirhossein">
+    <title>ورود - jac.ai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600&family=Roboto:wght@400;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-light: #f0f6fc;
+            --text-dark: #e6edf3;
+            --text-light: #0d1a26;
+            --container-dark: #161b22;
+            --container-light: #ffffff;
+            --border-light: #d0d7de;
+            --accent: #58a6ff;
+            --error-bg: #d73a49;
+            --shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+            --shadow-light: 0 1px 6px rgba(0, 0, 0, 0.1);
+            --transition: 0.3s ease-in-out;
+            --radius: 6px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Vazirmatn', 'Roboto', 'Amiri', sans-serif;
+            direction: rtl;
+            padding: 20px;
+        }
+        body.light { background: var(--bg-light); color: var(--text-light); }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--container-dark);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        body.light .container { background: var(--container-light); border: 1px solid var(--border-light); box-shadow: var(--shadow-light); }
+        h2 { font-size: 24px; margin-bottom: 20px; text-align: center; color: var(--accent); }
+        .form-group { margin-bottom: 15px; position: relative; }
+        label { display: block; font-size: 14px; margin-bottom: 5px; }
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #21262d;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 5px rgba(88, 166, 255, 0.3); outline: none; }
+        body.light input { background: var(--container-light); color: var(--text-light); border: 1px solid var(--border-light); }
+        body.light input:focus { box-shadow: 0 0 5px rgba(13, 26, 38, 0.2); }
+        button {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius);
+            border: none;
+            background: var(--accent);
+            color: var(--text-dark);
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        button:hover { background: #79b8ff; transform: scale(1.02); }
+        .back-btn { background: var(--error-bg); margin-top: 10px; }
+        .back-btn:hover { background: #f85149; }
+        #toast {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--container-dark);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        body.light #toast { background: var(--container-light); color: var(--text-light); }
+        .toggle-password {
+            position: absolute;
+            left: 10px;
+            top: 35px;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+        body.light .toggle-password { color: var(--text-light); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 600px) {
+            .container { max-width: 90%; padding: 15px; }
+            h2 { font-size: 20px; }
+            input, button { font-size: 13px; padding: 8px; }
+            #toast { font-size: 12px; padding: 6px 10px; }
+        }
+        @media (min-width: 601px) {
+            .container { max-width: 400px; }
+        }
+    </style>
+</head>
+<body lang="fa">
+    <div id="toast"></div>
+    <main class="container">
+        <h2>ورود</h2>
+        <form id="login-form" onsubmit="login(event)">
+            <div class="form-group">
+                <label for="username">نام کاربری</label>
+                <input type="text" id="username" aria-label="نام کاربری" placeholder="نام کاربری خود را وارد کنید" required minlength="3">
+            </div>
+            <div class="form-group">
+                <label for="password">رمز عبور</label>
+                <input type="password" id="password" aria-label="رمز عبور" placeholder="رمز عبور خود را وارد کنید" required minlength="8">
+                <span class="toggle-password fa fa-eye" onclick="togglePassword()"></span>
+            </div>
+            <button type="submit" aria-label="ورود"><i class="fa fa-sign-in-alt"></i> ورود</button>
+            <button class="back-btn" onclick="window.location.href='index.html'" aria-label="بازگشت به چت"><i class="fa fa-arrow-right"></i> بازگشت به چت</button>
+        </form>
+    </main>
+    <script defer>
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerHTML = message;
+            toast.style.opacity = 1;
+            setTimeout(() => { toast.style.opacity = 0; }, 4000);
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            const toggleIcon = document.querySelector(".toggle-password");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const storedPassword = localStorage.getItem("password") || "";
+
+            if (!username || !password) {
+                showToast("لطفاً همه فیلدها را پر کنید.");
+                return;
+            }
+            if (username.length < 3) {
+                showToast("نام کاربری باید حداقل ۳ کاراکتر باشد.");
+                return;
+            }
+            if (password.length < 8) {
+                showToast("رمز عبور باید حداقل ۸ کاراکتر باشد.");
+                return;
+            }
+            if (password !== storedPassword) {
+                showToast("رمز عبور اشتباه است.");
+                return;
+            }
+
+            localStorage.setItem("username", username);
+            showToast(`خوش آمدید، ${username}!`);
+            setTimeout(() => window.location.href = "index.html", 1000);
+        }
+    </script>
+</body>
+</html>

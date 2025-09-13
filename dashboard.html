@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="داشبورد jac.ai - مدیریت پروژه‌ها، پیام‌ها، و آمار چت">
+    <meta name="keywords" content="داشبورد, چت‌بات, هوش مصنوعی, jac.ai">
+    <meta name="author" content="Amirhossein">
+    <title>داشبورد - jac.ai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600&family=Roboto:wght@400;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-light: #f0f6fc;
+            --text-dark: #e6edf3;
+            --text-light: #0d1a26;
+            --container-dark: #161b22;
+            --container-light: #ffffff;
+            --border-light: #d0d7de;
+            --accent: #58a6ff;
+            --error-bg: #d73a49;
+            --success-bg: #28a745;
+            --shadow: 0 1px 6px rgba(0,0,0,0.15);
+            --shadow-light: 0 1px 6px rgba(0,0,0,0.1);
+            --transition: 0.3s ease-in-out;
+            --radius: 6px;
+            --btn-radius: 20px;
+            --font-size: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Vazirmatn', 'Roboto', 'Amiri', sans-serif;
+            direction: rtl;
+            padding: 20px;
+        }
+        body.light { background: var(--bg-light); color: var(--text-light); }
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--container-dark);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        body.light .container { background: var(--container-light); border: 1px solid var(--border-light); box-shadow: var(--shadow-light); }
+        h2 { font-size: 24px; margin-bottom: 20px; text-align: center; color: var(--accent); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: rgba(255,255,255,0.1); padding: 15px; border-radius: var(--radius); text-align: center; }
+        body.light .stat-card { background: rgba(0,0,0,0.05); }
+        .stat-value { font-size: 28px; font-weight: 600; color: var(--accent); }
+        .stat-label { font-size: 14px; opacity: 0.8; margin-top: 5px; }
+        .projects-list, .messages-list { margin-bottom: 20px; }
+        .project-item, .message-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: var(--radius); margin-bottom: 8px; }
+        body.light .project-item, body.light .message-item { background: rgba(0,0,0,0.05); }
+        .project-name, .message-text { font-weight: 600; max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .project-actions, .message-actions { display: flex; gap: 5px; }
+        .project-actions button, .message-actions button { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px; }
+        .delete-project, .delete-message { background: var(--error-bg); color: white; }
+        .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
+        #message-filter, #message-search { padding: 8px; border-radius: var(--radius); border: 1px solid var(--border-light); background: var(--container-dark); color: var(--text-dark); font-size: var(--font-size); }
+        body.light #message-filter, body.light #message-search { background: var(--container-light); color: var(--text-light); }
+        button {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius);
+            border: none;
+            background: var(--accent);
+            color: var(--text-dark);
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        button:hover { background: #79b8ff; transform: scale(1.02); }
+        .back-btn { background: var(--error-bg); margin-top: 10px; }
+        .back-btn:hover { background: #f85149; }
+        .ai-status { width: 12px; height: 12px; border-radius: 50%; background: var(--error-bg); display: inline-block; margin-left: 8px; }
+        .ai-status.active { background: var(--success-bg); }
+        #toast {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--container-dark);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        body.light #toast { background: var(--container-light); color: var(--text-light); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 600px) {
+            .container { max-width: 90%; padding: 15px; }
+            h2 { font-size: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .project-name, .message-text { max-width: 60%; }
+            button { font-size: 13px; padding: 8px; }
+            #message-filter, #message-search { font-size: 12px; padding: 6px; }
+            #toast { font-size: 12px; padding: 6px 10px; }
+        }
+    </style>
+</head>
+<body lang="fa">
+    <div id="toast"></div>
+    <main class="container">
+        <h2>داشبورد <span id="ai-status" aria-label="وضعیت هوش مصنوعی"></span></h2>
+        <p>خوش آمدید، <span id="username"></span>!</p>
+        
+        <!-- آمار چت -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-chats">0</div>
+                <div class="stat-label">تعداد کل چت‌ها</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-messages">0</div>
+                <div class="stat-label">تعداد پیام‌ها</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="success-rate">0%</div>
+                <div class="stat-label">نرخ موفقیت</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-projects">0</div>
+                <div class="stat-label">تعداد پروژه‌ها</div>
+            </div>
+        </div>
+
+        <!-- فیلتر و جستجوی پیام‌ها -->
+        <div class="messages-list">
+            <h3>مدیریت پیام‌ها</h3>
+            <div class="filter-container">
+                <select id="message-filter" aria-label="فیلتر پیام‌ها">
+                    <option value="all">همه پیام‌ها</option>
+                    <option value="shoma">پیام‌های کاربر</option>
+                    <option value="gpt">پیام‌های هوش مصنوعی</option>
+                </select>
+                <input type="text" id="message-search" placeholder="جستجو در پیام‌ها..." aria-label="جستجوی پیام‌ها">
+            </div>
+            <div id="messages-container"></div>
+            <button onclick="downloadHistory()" aria-label="دانلود تاریخچه"><i class="fa fa-download"></i> دانلود تاریخچه</button>
+        </div>
+
+        <!-- لیست پروژه‌ها -->
+        <div class="projects-list">
+            <h3>پروژه‌های شما</h3>
+            <div id="projects-container"></div>
+            <button onclick="createNewProject()" aria-label="پروژه جدید"><i class="fa fa-plus"></i> پروژه جدید</button>
+        </div>
+
+        <button onclick="logout()" aria-label="خروج"><i class="fa fa-sign-out-alt"></i> خروج</button>
+        <button class="back-btn" onclick="window.location.href='index.html'" aria-label="بازگشت به چت"><i class="fa fa-arrow-right"></i> بازگشت به چت</button>
+    </main>
+    <audio id="click-sound" src="https://freesound.org/data/previews/171/171671_2436018-lq.mp3"></audio>
+    <script defer>
+        const GEMINI_API_KEY = "AIzaSyCcKlYgqdjiHJbLOHhBa7m_Duu8nFdfKHg"; // هشدار: از متغیر محیطی استفاده کنید
+        const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerHTML = message;
+            toast.style.opacity = 1;
+            setTimeout(() => { toast.style.opacity = 0; }, 4000);
+        }
+
+        function playSound() {
+            if (localStorage.getItem("sound-effects") === "false") return;
+            document.getElementById("click-sound").play().catch(e => console.warn("Sound play failed:", e));
+        }
+
+        function updateStats() {
+            const history = JSON.parse(localStorage.getItem("chat-history") || "[]");
+            const projects = JSON.parse(localStorage.getItem("projects") || "[]");
+            
+            document.getElementById("total-chats").innerText = Math.ceil(history.length / 2); // تقریبی (کاربر + AI)
+            document.getElementById("total-messages").innerText = history.length;
+            const successRate = history.length > 0 ? Math.round((history.filter(msg => msg.role === "GPT" && !msg.text.includes("خطا")).length / (history.length / 2)) * 100) : 0;
+            document.getElementById("success-rate").innerText = successRate + "%";
+            document.getElementById("total-projects").innerText = projects.length;
+
+            // نمایش پروژه‌ها
+            const projectsContainer = document.getElementById("projects-container");
+            projectsContainer.innerHTML = "";
+            projects.forEach((project, index) => {
+                const item = document.createElement("div");
+                item.className = "project-item";
+                item.innerHTML = `
+                    <span class="project-name">${project.name}</span>
+                    <div class="project-actions">
+                        <button onclick="openProject(${index})" aria-label="باز کردن پروژه ${project.name}"><i class="fa fa-eye"></i></button>
+                        <button class="delete-project" onclick="deleteProject(${index})" aria-label="حذف پروژه ${project.name}"><i class="fa fa-trash"></i></button>
+                    </div>
+                `;
+                projectsContainer.appendChild(item);
+            });
+
+            // نمایش پیام‌ها
+            updateMessages(history);
+        }
+
+        function updateMessages(history) {
+            const filter = document.getElementById("message-filter").value;
+            const search = document.getElementById("message-search").value.toLowerCase();
+            const messagesContainer = document.getElementById("messages-container");
+            messagesContainer.innerHTML = "";
+
+            const filteredHistory = history.filter(msg => {
+                const matchesFilter = filter === "all" || msg.role.toLowerCase() === filter;
+                const matchesSearch = !search || msg.text.toLowerCase().includes(search);
+                return matchesFilter && matchesSearch;
+            });
+
+            filteredHistory.forEach((msg, index) => {
+                const item = document.createElement("div");
+                item.className = "message-item";
+                item.innerHTML = `
+                    <span class="message-text">${msg.text.substring(0, 50)}${msg.text.length > 50 ? "..." : ""}</span>
+                    <div class="message-actions">
+                        <button onclick="viewMessage(${index})" aria-label="مشاهده پیام ${index + 1}"><i class="fa fa-eye"></i></button>
+                        <button class="delete-message" onclick="deleteMessage(${index})" aria-label="حذف پیام ${index + 1}"><i class="fa fa-trash"></i></button>
+                    </div>
+                `;
+                messagesContainer.appendChild(item);
+            });
+        }
+
+        function createNewProject() {
+            const name = prompt("نام پروژه جدید را وارد کنید:");
+            if (name && name.trim()) {
+                const projects = JSON.parse(localStorage.getItem("projects") || "[]");
+                projects.push({ name: name.trim(), created: new Date().toISOString() });
+                localStorage.setItem("projects", JSON.stringify(projects));
+                updateStats();
+                showToast("پروژه جدید ایجاد شد!");
+                playSound();
+            }
+        }
+
+        function openProject(index) {
+            const projects = JSON.parse(localStorage.getItem("projects") || "[]");
+            localStorage.setItem("current-project", JSON.stringify(projects[index]));
+            window.location.href = "index.html";
+        }
+
+        function deleteProject(index) {
+            if (confirm("آیا مطمئن هستید که می‌خواهید این پروژه را حذف کنید؟")) {
+                const projects = JSON.parse(localStorage.getItem("projects") || "[]");
+                projects.splice(index, 1);
+                localStorage.setItem("projects", JSON.stringify(projects));
+                updateStats();
+                showToast("پروژه حذف شد!");
+                playSound();
+            }
+        }
+
+        function viewMessage(index) {
+            const history = JSON.parse(localStorage.getItem("chat-history") || "[]");
+            const msg = history[index];
+            alert(`نقش: ${msg.role === "Shoma" ? "کاربر" : "هوش مصنوعی"}\nزمان: ${msg.timestamp}\nمتن: ${msg.text}${msg.image ? "\nتصویر: موجود" : ""}`);
+            playSound();
+        }
+
+        function deleteMessage(index) {
+            if (confirm("آیا مطمئن هستید که می‌خواهید این پیام را حذف کنید؟")) {
+                const history = JSON.parse(localStorage.getItem("chat-history") || "[]");
+                history.splice(index, 1);
+                localStorage.setItem("chat-history", JSON.stringify(history));
+                updateStats();
+                showToast("پیام حذف شد!");
+                playSound();
+            }
+        }
+
+        function downloadHistory() {
+            const history = JSON.parse(localStorage.getItem("chat-history") || "[]");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
+            const downloadAnchor = document.createElement("a");
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `chat_history_${new Date().toISOString().split("T")[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("تاریخچه دانلود شد!");
+            playSound();
+        }
+
+        function checkAIStatus() {
+            const statusIndicator = document.getElementById("ai-status");
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: "Ping" }] }] })
+            }).then(res => {
+                statusIndicator.classList.toggle("active", res.ok);
+                showToast(res.ok ? "هوش مصنوعی روشن است" : "هوش مصنوعی خاموش است");
+            }).catch(() => {
+                statusIndicator.classList.remove("active");
+                showToast("هوش مصنوعی خاموش است");
+            });
+        }
+
+        document.getElementById("username").innerText = localStorage.getItem("username") || "کاربر";
+
+        function logout() {
+            localStorage.removeItem("username");
+            showToast("با موفقیت خارج شدید!");
+            setTimeout(() => window.location.href = "index.html", 1000);
+            playSound();
+        }
+
+        document.getElementById("message-filter").addEventListener("change", () => updateStats());
+        document.getElementById("message-search").addEventListener("input", () => updateStats());
+
+        window.onload = () => {
+            updateStats();
+            checkAIStatus();
+            setInterval(checkAIStatus, 30000);
+            document.documentElement.style.setProperty('--accent', localStorage.getItem("accent-color") || "#58a6ff");
+            document.documentElement.style.setProperty('--font-size', `${localStorage.getItem("font-size") || "14"}px`);
+            document.body.classList.toggle("light", localStorage.getItem("theme") === "light");
+        };
+    </script>
+</body>
+</html>

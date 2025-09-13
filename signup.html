@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ثبت‌نام در jac.ai - چت‌بات هوشمند با رابط کاربری مدرن">
+    <meta name="keywords" content="ثبت‌نام, چت‌بات, هوش مصنوعی, jac.ai">
+    <meta name="author" content="Amirhossein">
+    <title>ثبت‌نام - jac.ai</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600&family=Roboto:wght@400;600&family=Amiri:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-light: #f0f6fc;
+            --text-dark: #e6edf3;
+            --text-light: #0d1a26;
+            --container-dark: #161b22;
+            --container-light: #ffffff;
+            --border-light: #d0d7de;
+            --accent: #58a6ff;
+            --error-bg: #d73a49;
+            --shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+            --shadow-light: 0 1px 6px rgba(0, 0, 0, 0.1);
+            --transition: 0.3s ease-in-out;
+            --radius: 6px;
+            --font-size: 14px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Vazirmatn', 'Roboto', 'Amiri', sans-serif;
+            direction: rtl;
+            padding: 20px;
+            font-size: var(--font-size);
+        }
+
+        body[lang="en"] { font-family: 'Roboto', sans-serif; direction: ltr; }
+        body[lang="ar"] { direction: rtl; }
+        body.light { background: var(--bg-light); color: var(--text-light); }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--container-dark);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        body.light .container {
+            background: var(--container-light);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-light);
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #21262d;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 5px rgba(88, 166, 255, 0.3);
+            outline: none;
+        }
+
+        body.light input {
+            background: var(--container-light);
+            color: var(--text-light);
+            border: 1px solid var(--border-light);
+        }
+
+        body.light input:focus {
+            box-shadow: 0 0 5px rgba(13, 26, 38, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius);
+            border: none;
+            background: var(--accent);
+            color: var(--text-dark);
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: #79b8ff;
+            transform: scale(1.02);
+        }
+
+        .back-btn {
+            background: var(--error-bg);
+            margin-top: 10px;
+        }
+
+        .back-btn:hover { background: #f85149; }
+
+        .toggle-password {
+            position: absolute;
+            left: 10px;
+            top: 35px;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+
+        body.light .toggle-password { color: var(--text-light); }
+
+        #toast {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--container-dark);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        body.light #toast { background: var(--container-light); color: var(--text-light); }
+
+        #toast::before { content: "ℹ️"; font-size: 12px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .container { max-width: 90%; padding: 15px; }
+            h2 { font-size: 20px; }
+            input, button { font-size: 13px; padding: 8px; }
+            #toast { font-size: 12px; padding: 6px 10px; }
+        }
+
+        @media (min-width: 601px) {
+            .container { max-width: 400px; }
+        }
+    </style>
+</head>
+
+<body lang="fa">
+    <div id="toast"></div>
+    <main class="container">
+        <h2>ثبت‌نام</h2>
+        <form id="signup-form" onsubmit="signup(event)">
+            <div class="form-group">
+                <label for="username">نام کاربری</label>
+                <input type="text" id="username" aria-label="نام کاربری" placeholder="نام کاربری خود را وارد کنید" required minlength="3">
+            </div>
+            <div class="form-group">
+                <label for="password">رمز عبور</label>
+                <input type="password" id="password" aria-label="رمز عبور" placeholder="رمز عبور خود را وارد کنید" required minlength="8">
+                <span class="toggle-password fa fa-eye" onclick="togglePassword('password')"></span>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">تأیید رمز عبور</label>
+                <input type="password" id="confirm-password" aria-label="تأیید رمز عبور" placeholder="رمز عبور را دوباره وارد کنید" required minlength="8">
+                <span class="toggle-password fa fa-eye" onclick="togglePassword('confirm-password')"></span>
+            </div>
+            <button type="submit" aria-label="ثبت‌نام"><i class="fa fa-user-plus"></i> ثبت‌نام</button>
+            <button class="back-btn" onclick="window.location.href='index.html'" aria-label="بازگشت به چت"><i class="fa fa-arrow-right"></i> بازگشت به چت</button>
+        </form>
+    </main>
+    <script defer>
+        const translations = {
+            fa: {
+                fieldsError: "لطفاً همه فیلدها را پر کنید.",
+                usernameLengthError: "نام کاربری باید حداقل ۳ کاراکتر باشد.",
+                passwordLengthError: "رمز عبور باید حداقل ۸ کاراکتر باشد.",
+                passwordMismatchError: "رمز عبور و تأیید آن مطابقت ندارند.",
+                signupSuccess: (username) => `خوش آمدید، ${username}! ثبت‌نام با موفقیت انجام شد.`,
+            },
+            en: {
+                fieldsError: "Please fill in all fields.",
+                usernameLengthError: "Username must be at least 3 characters.",
+                passwordLengthError: "Password must be at least 8 characters.",
+                passwordMismatchError: "Password and confirmation do not match.",
+                signupSuccess: (username) => `Welcome, ${username}! Sign-up successful.`,
+            },
+            ar: {
+                fieldsError: "يرجى ملء جميع الحقول.",
+                usernameLengthError: "يجب أن يكون اسم المستخدم ٣ أحرف على الأقل.",
+                passwordLengthError: "يجب أن تكون كلمة المرور ٨ أحرف على الأقل.",
+                passwordMismatchError: "كلمة المرور وتأكيدها غير متطابقتين.",
+                signupSuccess: (username) => `مرحبًا، ${username}! تم التسجيل بنجاح.`,
+            }
+        };
+
+        let currentLang = localStorage.getItem("language") || "fa";
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            if (localStorage.getItem("notifications") === "false") return;
+            toast.innerHTML = message;
+            toast.style.opacity = 1;
+            setTimeout(() => { toast.style.opacity = 0; }, 4000);
+        }
+
+        function togglePassword(id) {
+            const passwordInput = document.getElementById(id);
+            const toggleIcon = passwordInput.nextElementSibling;
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+
+        function signup(event) {
+            event.preventDefault();
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const confirmPassword = document.getElementById("confirm-password").value.trim();
+
+            if (!username || !password || !confirmPassword) {
+                showToast(translations[currentLang].fieldsError);
+                return;
+            }
+            if (username.length < 3) {
+                showToast(translations[currentLang].usernameLengthError);
+                return;
+            }
+            if (password.length < 8) {
+                showToast(translations[currentLang].passwordLengthError);
+                return;
+            }
+            if (password !== confirmPassword) {
+                showToast(translations[currentLang].passwordMismatchError);
+                return;
+            }
+
+            localStorage.setItem("username", username);
+            localStorage.setItem("password", password); // هشدار: ذخیره رمز در localStorage ناامن است
+            showToast(translations[currentLang].signupSuccess(username));
+            setTimeout(() => window.location.href = "index.html", 1000);
+        }
+
+        function loadSettings() {
+            const theme = localStorage.getItem("theme") || "dark";
+            const fontSize = localStorage.getItem("font-size") || "14";
+            const accentColor = localStorage.getItem("accent-color") || "#58a6ff";
+            currentLang = localStorage.getItem("language") || "fa";
+
+            document.documentElement.style.setProperty('--accent', accentColor);
+            document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
+            document.body.classList.toggle("light", theme === "light");
+            document.body.lang = currentLang;
+        }
+
+        window.onload = loadSettings;
+    </script>
+</body>
+
+</html>
